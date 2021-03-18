@@ -42,6 +42,8 @@ class HexagonalDiamondGrid:
         return cell_list
 
     def get_pegs(self):
+        """ Returns three lists, one with cells that are empty (i.e. legal actions), one with cells that
+         belong to player 1 and one with cells that belong to player 2"""
         empty_pegs = []
         red_pegs = []
         blue_pegs = []
@@ -56,6 +58,15 @@ class HexagonalDiamondGrid:
                         blue_pegs.append(current_cell)
         return empty_pegs, red_pegs, blue_pegs
 
+    def get_empty_cells(self):
+        empty_cells = []
+        for cell_row in self.board:
+            for current_cell in cell_row:
+                if current_cell is not None:
+                    if current_cell.get_cell_state() == (0, 0):
+                        empty_cells.append(current_cell)
+        return empty_cells
+
     def get_pegs_nums(self):
         """ Returns number of empty pegs, red pegs and blue pegs"""
         empty_pegs, red_pegs, blue_pegs = self.get_pegs()
@@ -64,26 +75,23 @@ class HexagonalDiamondGrid:
     def get_binary_state(self):
         """ Returns space efficient and readable binary version of state where empty: 0, player 1: 1 and player 2: 2.
          OBS: Change to (0, 0), (1, 0) and (0, 1) later!"""
-        board_state = ""
+        binary_board_state = ""
         for current_cell in self.get_cells():
             if current_cell.get_cell_state() == (0, 0):
-                board_state += str(0)
+                binary_board_state += str((0, 0))
             if current_cell.get_cell_state() == (1, 0):
-                board_state += str(1)
+                binary_board_state += str((1, 0))
             if current_cell.get_cell_state() == (0, 1):
-                board_state += str(2)
-        return board_state
+                binary_board_state += str((0, 1))
+        return binary_board_state
 
-    def perform_action(self, action):
+    def perform_action(self, cell_location, player):
         """Given an action = [cell_location, player], performs action by changing state of given cell if it is not
         already owned by another player. Player moves that effect several cells are implemented by looping this method"""
-        if len(action) == 2:
-            cell_location = action[0]
-            player = action[1]
-            if self.get_cell(cell_location).get_cell_state() == (0, 0) and player == 1:
-                self.get_cell(cell_location).set_cell_state((1, 0))
-            elif self.get_cell(cell_location).get_cell_state() == (0, 0) and player == 2:
-                self.get_cell(cell_location).set_cell_state((0, 1))
+        if self.get_cell(cell_location).get_cell_state() == (0, 0) and player == 1:
+            self.get_cell(cell_location).set_cell_state((1, 0))
+        elif self.get_cell(cell_location).get_cell_state() == (0, 0) and player == 2:
+            self.get_cell(cell_location).set_cell_state((0, 1))
 
 
 if __name__ == '__main__':
@@ -93,6 +101,7 @@ if __name__ == '__main__':
     board.perform_action([(0, 1), 2])
     board.perform_action([(2, 1), 1])
     board.perform_action([(2, 2), 2])
+    print(board.get_cells())
     print(board.get_binary_state())
 
 
