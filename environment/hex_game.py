@@ -1,5 +1,5 @@
 from environment.game_board import HexagonalDiamondGrid
-from collections import deque
+import collections
 
 
 class Hex:
@@ -14,31 +14,32 @@ class Hex:
     def get_current_state(self):
         return self.board.get_binary_state()
 
-    def get_next_state(self, action):
+    def get_next_state(self, state, action):
         """Perform the given action to produce the next state and returns this state"""
-        cell_location, player = action[0], action[1]
-        self.perform_action(cell_location, player)
+        self.set_cell_states(state)
+        self.perform_action(action)
         return self.board.get_binary_state()
 
-    def get_legal_cell_locations(self, state):
+    def get_legal_cells(self, state):
         """Given a state that lists the states of the cell on the board (e.g. [(0, 0), (1, 0), (0, 0), ...],
         this method will return the legal actions for this game state by updating the board cells and
         then returning the cells that are not owned by any player"""
-        if len(state) == self.size*self.size:
-            self.set_cell_states(state)
-            return self.board.get_empty_cells()
+        self.set_cell_states(state)
+        return self.board.get_empty_cells()
 
     def set_cell_states(self, cell_states):
         """Cell_states is a list of the board cells state values, e.g. [(0, 1), (0, 0), (1, 0), (0, 0), ...]
          This method will receive such a list and changes the states of the currents board cells to
          the states given by the list"""
         board_cells = self.board.get_cells()
-        for i in range(len(cell_states)):
+        # LEGG TIL EXCEPTION MANAGEMENT (sjekk at cell_states har like mange celler som board_cells)
+        for i in range(len(board_cells)):
             board_cells[i].set_cell_state(cell_states[i])
 
-    def perform_action(self, cell_location, player):
+    def perform_action(self, action):
         """Perform action by changing the state of the cell at the given location to a new state
         depending on the player: (1, 0): player 1, (0, 1): player 2"""
+        cell_location, player = action[0], action[1]
         self.board.perform_action(cell_location, player)
 
     def is_winning_state(self):
@@ -60,7 +61,7 @@ class Hex:
     def depth_first_search(self, starting_cell):
         """Search after continuous path from given starting cell to a cell on the ending side
         for the player that owns the given cell"""
-        cell_stack = deque()  # implement python stack
+        cell_stack = collections.deque()  # implement python stack
         cell_stack.append(starting_cell)
         visited = set()  # set to keep track of visited cells
         while len(cell_stack) != 0:
@@ -76,7 +77,7 @@ class Hex:
                         cell_stack.append(neighbor)
 
 
-if __name__ == '__main__':
+"""if __name__ == '__main__':
     hex_game = Hex(3)
     #print(hex_game.get_board().get_binary_state())
     p1_action1 = [(1, 0), 1]
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     hex_game.perform_action((2, 0), 2)
     print(hex_game.get_legal_actions())
     #print(hex_game.get_board().get_binary_state())
-    #print(hex_game.is_winning_state())
+    #print(hex_game.is_winning_state())"""
 
 
 
