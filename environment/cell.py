@@ -29,8 +29,8 @@ class Cell:
 
     def set_cell_state(self, new_state):
         """ Change state of cell, where (0, 0) is empty, (1, 0) belong to player 1 and (0, 1) belong to player 2"""
-        if len(new_state) == 2:
-            self.cell_state = new_state
+        #OBSOBS: add exemption to check length of new_state == 2
+        self.cell_state = new_state
 
     def get_location(self):
         """ Returns location of cell as (row, col)"""
