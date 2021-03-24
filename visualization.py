@@ -3,13 +3,18 @@ import matplotlib.pyplot as plt
 from celluloid import Camera
 
 
+# OBS OBS OBS : visualized board should be diamond, not rectangle! NEED TO FIX THIS!
 class Visualizer:
-    def __init__(self, board, visualization_speed, game):
+    def __init__(self, board, game, visualization_speed, visualization_interval):
         self.board = board
         self.game = game
         self.camera = Camera(plt.figure())
         self.G, self.pos = self.init_board_visualizer()
         self.speed = visualization_speed
+        self.interval = visualization_interval
+
+    def get_interval(self):
+        return self.interval
 
     def init_board_visualizer(self):
         G = nx.Graph()
@@ -40,7 +45,7 @@ class Visualizer:
         plt.show(block=False)
         plt.close()
 
-    def visualize_last_game(self, game_actions):
+    def visualize(self, game_actions):
         """ Visualizes the performed actions and resulting states in the given episode"""
         self.draw_board()
         for action in game_actions:
