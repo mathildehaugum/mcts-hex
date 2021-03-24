@@ -75,14 +75,14 @@ class HexagonalDiamondGrid:
     def get_binary_state(self):
         """ Returns space efficient and readable binary version of state where empty: 0, player 1: 1 and player 2: 2.
          OBS: Change to (0, 0), (1, 0) and (0, 1) later!"""
-        binary_board_state = ""
+        binary_board_state = []
         for current_cell in self.get_cells():
             if current_cell.get_cell_state() == (0, 0):
-                binary_board_state += str((0, 0))
+                binary_board_state.append((0, 0))
             if current_cell.get_cell_state() == (1, 0):
-                binary_board_state += str((1, 0))
+                binary_board_state.append((1, 0))
             if current_cell.get_cell_state() == (0, 1):
-                binary_board_state += str((0, 1))
+                binary_board_state.append((0, 1))
         return binary_board_state
 
     def perform_action(self, cell_location, player):
@@ -92,6 +92,8 @@ class HexagonalDiamondGrid:
             self.get_cell(cell_location).set_cell_state((1, 0))
         elif self.get_cell(cell_location).get_cell_state() == (0, 0) and player == 2:
             self.get_cell(cell_location).set_cell_state((0, 1))
+        else:
+            print("NOT AVAILABLE")
 
 
 if __name__ == '__main__':
