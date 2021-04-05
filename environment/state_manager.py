@@ -1,8 +1,6 @@
 from environment.hex_game import Hex
 from environment.nim_game import Nim
 from agent.node import Node
-from math import floor
-import numpy as np
 
 
 class StateManager:
@@ -64,60 +62,5 @@ class StateManager:
         and use the method implemented by the game type (e.g. hex_game) to perform this action."""
         self.game.perform_action(action)
 
-    def perform_action_index(self, action_index, player):
-        """When given an action index from the actor, this method will produce the action as [cell_location, player]
-        and use the method implemented by the game type (e.g. hex_game) to perform this action."""
-        action = self.index_to_action(action_index, player)
-        self.game.perform_action(action)
-
     def get_next_state(self, state, action):
         return self.game.get_next_state(state, action)
-
-    def get_next_state_action_index(self, state, action_index, player):
-        """When given a state and an action index from the actor, this method will produce the action as
-        [cell_location, player] and use the method implemented by the game type (e.g. hex_game) to get the next state
-        produced by performing this action in the given state."""
-        action = self.index_to_action(action_index, player)
-        return self.game.get_next_state(state, action)
-
-    def index_to_action(self, action_index, player):
-        """The actor network outputs a number that corresponds to an index in a list of actions.
-        This index needs to be translated into a cell_location that can be used to create a regular
-        action = [cell_location, player]"""
-        row = floor(action_index/self.size)
-        col = action_index % self.size
-        cell_location = [row, col]
-        return [cell_location, player]
-
-    """def use_heuristics(self, root_node, normalized_counters):
-        state, children = root_node.get_state(), root_node.get_children()
-
-        # In competition with external player, a winning strategy if mine player 1 begins is to play center
-        if ((1, 0) not in state) or ((0, 1) not in state):
-            normalized_counters = np.zeros(len(children))
-            np.put(normalized_counters, len(children) // 2, 1.0)
-            return normalized_counters
-
-        # High normalized action counter can mean that the next state is the winning state.
-        index = np.where(normalized_counters > 0.5)  # Returns an object that contains a list of indexes for elements that fulfill the condition
-        if len(index[0]) > 0:  # if list of indexes that fulfill the condition is not empty
-            best_action_index = index[0][0]
-            child_action = children[best_action_index]
-            child_state = self.game.get_next_state(state, child_action)
-            if self.is_winning_state(child_state):
-                normalized_counters = np.zeros(len(children))
-                normalized_counters[best_action_index] = 1.0"""
-
-
-"""if __name__ == '__main__':
-    sm = StateManager("HEX", 3)
-    sm.perform_action([(0, 2), 1])
-    sm.perform_action([(0, 0), 2])
-    sm.perform_action([(1, 1), 1])
-    print(sm.get_child_nodes([(0, 1), (1, 0), (1, 0), (0, 1), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)], 1))
-
-    sm.perform_action([(1, 0), 2])
-    sm.perform_action([(1, 2), 1])
-    #print(sm.game.get_current_state([(0, 1), (0, 0), (1, 0), (0, 1), (1, 0), (1, 0), (0, 0), (0, 0), (0, 0)]))
-    #print(sm.check_winning_state([(0, 1), (0, 0), (1, 0), (0, 1), (1, 0), (1, 0), (0, 0), (0, 0), (0, 0)], [(2, 0), 2]))
-    print(sm.is_winning_state())"""

@@ -21,12 +21,6 @@ class HexagonalDiamondGrid:
                 if r > 0 and c < self.boardSize-1:  # add right diagonal neighbor-cell
                     new_cell.add_neighbor(self.board[r-1][c+1])
 
-    def reset_board(self):
-        """ Reset board state by removing all holes """
-        cell_list = self.get_cells()
-        for current_cell in cell_list:
-            current_cell.set_cell_state((0, 0))  # remove player ownership of cell
-
     def get_cell(self, location):
         """ Returns Cell object at given location if it exists """
         if 0 <= location[0] < self.boardSize and 0 <= location[1] < self.boardSize:
@@ -50,11 +44,11 @@ class HexagonalDiamondGrid:
         for cell_row in self.board:
             for current_cell in cell_row:
                 if current_cell is not None:
-                    if current_cell.get_cell_state() == (0, 0):
+                    if current_cell.get_cell_state() == 0:
                         empty_pegs.append(current_cell)
-                    elif current_cell.get_cell_state() == (1, 0):
+                    elif current_cell.get_cell_state() == 1:
                         red_pegs.append(current_cell)
-                    elif current_cell.get_cell_state() == (0, 1):
+                    elif current_cell.get_cell_state() == 2:
                         blue_pegs.append(current_cell)
         return empty_pegs, red_pegs, blue_pegs
 
@@ -63,7 +57,7 @@ class HexagonalDiamondGrid:
         for cell_row in self.board:
             for current_cell in cell_row:
                 if current_cell is not None:
-                    if current_cell.get_cell_state() == (0, 0):
+                    if current_cell.get_cell_state() == 0:
                         empty_cells.append(current_cell)
         return empty_cells
 
@@ -73,40 +67,29 @@ class HexagonalDiamondGrid:
         return len(empty_pegs), len(red_pegs), len(blue_pegs)
 
     def get_binary_state(self):
-        """ Returns space efficient and readable binary version of state where empty: 0, player 1: 1 and player 2: 2.
-         OBS: Change to (0, 0), (1, 0) and (0, 1) later!"""
+        """ Returns space efficient and readable binary version of state where empty: 0, player 1: 1 and player 2: 2"""
         binary_board_state = []
         for current_cell in self.get_cells():
-            if current_cell.get_cell_state() == (0, 0):
-                binary_board_state.append((0, 0))
-            if current_cell.get_cell_state() == (1, 0):
-                binary_board_state.append((1, 0))
-            if current_cell.get_cell_state() == (0, 1):
-                binary_board_state.append((0, 1))
+            if current_cell.get_cell_state() == 0:
+                binary_board_state.append(0)
+            if current_cell.get_cell_state() == 1:
+                binary_board_state.append(1)
+            if current_cell.get_cell_state() == 2:
+                binary_board_state.append(2)
         return binary_board_state
 
     def perform_action(self, cell_location, player):
         """Given an action = [cell_location, player], performs action by changing state of given cell if it is not
         already owned by another player. Player moves that effect several cells are implemented by looping this method"""
-        if self.get_cell(cell_location).get_cell_state() == (0, 0) and player == 1:
-            self.get_cell(cell_location).set_cell_state((1, 0))
-        elif self.get_cell(cell_location).get_cell_state() == (0, 0) and player == 2:
-            self.get_cell(cell_location).set_cell_state((0, 1))
+        cell = self.get_cell(cell_location)
+        if cell is not None:
+            if cell.get_cell_state() == 0 and player == 1:
+                cell.set_cell_state(1)
+            elif cell.get_cell_state() == 0 and player == 2:
+                cell.set_cell_state(2)
+            else:
+                raise Exception("Move is not available because the cell is occupied")
         else:
-            print("NOT AVAILABLE")
-
-
-if __name__ == '__main__':
-    board = HexagonalDiamondGrid(4)
-    print(board.get_binary_state())
-    board.perform_action([(0, 0), 1])
-    board.perform_action([(0, 1), 2])
-    board.perform_action([(2, 1), 1])
-    board.perform_action([(2, 2), 2])
-    print(board.get_cells())
-    print(board.get_binary_state())
-
-
-
+            raise Exception("Given cell_location is invalid")
 
 

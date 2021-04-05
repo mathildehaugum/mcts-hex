@@ -5,8 +5,8 @@ from math import floor, sqrt
 import tensorflow as tf
 import numpy as np
 from tensorflow import keras as KER
-from tensorflow.keras.optimizers import Adadelta
-from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.optimizers import Adadelta, Adagrad, Adam
+from tensorflow.keras.losses import MeanSquaredError, KLDivergence
 from tensorflow import zeros_like
 import random
 from matplotlib import pyplot as plt
@@ -26,14 +26,14 @@ class Actor:
         if not is_top_policy and self.epsilon >= random.uniform(0, 1):
             legal_indexes = []
             for index in range(len(state)):
-                if state[index] == (0, 0):
+                if state[index] == 0:
                     legal_indexes.append(index)
             action_index = legal_indexes[random.randrange(len(legal_indexes))]
         else:
             tensor_state = convert_state_to_tensor(state, player)
             prediction = self.anet.predict(tensor_state)
             for index in range(len(state)):
-                if state[index] == (0, 0):
+                if state[index] == 0:
                     prediction[index] = 0
             total = np.sum(prediction)
             prediction *= 1/total  # re-normalize after non-legal action indexes are set to 0
@@ -63,7 +63,7 @@ class Actor:
 
     def save(self, episode_num):
         """Save current parameter of ANET for later use in tournament play"""
-        path = "./models/ANET_" + episode_num + "_size_" + self.size
+        path = "./models/ANET_" + str(episode_num) + "_size_" + str(self.size)
         self.anet.model.save_weights(filepath=path)
 
     def load(self, path):
@@ -84,11 +84,10 @@ class Actor:
 class ANET:
     def __init__(self, nn_dims, activation, optimizer, loss_function, learning_rate):
         self.input_size, self.hidden_layers_dim, self.output_size = nn_dims[0], nn_dims[1:len(nn_dims)-1], nn_dims[len(nn_dims)-1]
-
-        self.activation = self.get_activation_function(activation)
+        self.alpha = learning_rate
+        self.activation = activation
         self.optimizer = self.get_optimizer(optimizer)
         self.loss_function = self.get_loss_function(loss_function)
-        self.alpha = learning_rate
         self.model = self.init_nn()
 
     def init_nn(self):
@@ -110,7 +109,7 @@ class ANET:
         return history.history['loss']
 
 
-    @staticmethod
+    """@staticmethod
     def get_activation_function(activation):
         if activation == "sigmoid":
             return None
@@ -119,25 +118,22 @@ class ANET:
         elif activation == "linear":
             return None
         elif activation == "tanh":
-            return None
+            return None"""
 
-    @staticmethod
-    def get_optimizer(optimizer):
+    def get_optimizer(self, optimizer):
         if optimizer == "adam":
-            return None
+            return Adam(self.alpha)
         elif optimizer == "adagrad":
-            return None
-        elif optimizer == "sgd":
-            return None
+            return Adagrad(self.alpha)
         elif optimizer == "adadelta":
-            return None
+            return Adadelta(self.alpha)
 
     @staticmethod
     def get_loss_function(loss):
         if loss == "mean-squared-error":
-            return None
-        elif loss == "cross-entropy":
-            return None
+            return MeanSquaredError()
+        elif loss == "KLDivergence":
+            return KLDivergence()
 
 
 def convert_state_to_tensor(state):

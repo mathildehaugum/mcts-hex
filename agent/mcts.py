@@ -28,7 +28,7 @@ class MonteCarloTreeSearch:
          the child nodes and then use the Tree policy (min-max) to choose the next root"""
         current_root = self.root
         child_nodes = current_root.get_child_nodes()
-        while not self.state_manager.is_winning_state(current_root.get_state()) and len(child_nodes) != 0:
+        while not self.state_manager.is_winning_state(current_root.get_state()) and len(child_nodes) > 0:
             for child in child_nodes:  # Update value of each child node before choosing the next root
                 if current_root.get_player() == 1:
                     u = self.c * sqrt(log(child.get_parent_counter()/(1 + child.get_counter())))
@@ -39,30 +39,28 @@ class MonteCarloTreeSearch:
 
             # Tree policy: choose action (and hence next root) that maximize value for P1 or minimize value for P2
             if current_root.get_player() == 1:
-                current_root = max(child.get_value() for child in child_nodes)
+                current_root = max(child_nodes, key=lambda item: item.get_value())
             elif current_root.get_player() == 2:
-                current_root = min(child.get_value() for child in child_nodes)
+                current_root = min(child_nodes, key=lambda item: item.get_value())
             child_nodes = current_root.get_child_nodes()
         return current_root
 
     def leaf_node_expansion(self, node):
         """Some or all child states of a parent state is generated, and the tree node housing the parent state
         (i.e. parent node) is connected to the nodes housing the child states (i.e. child nodes)"""
-        if self.state_manager.is_winning_state(node.get_state())[0]:  # node is a leaf node, so expansion is not possible
-            return node
-        child_nodes = self.state_manager.get_child_nodes(node.get_state(), node.get_player())
-        child_player = 1 if node.player == 2 else 2
-        for child in child_nodes:
-            node.add_child(child)  # connect child to parent, and parent to child (both performed by add_child())
-            child.set_player(child_player)
-        return node
+        if not self.state_manager.is_winning_state(node.get_state()):  # node is a leaf node, so expansion is not possible
+            child_nodes = self.state_manager.get_child_nodes(node.get_state(), node.get_player())
+            child_player = 1 if node.player == 2 else 2
+            for child in child_nodes:
+                node.add_child(child)  # connect child to parent, and parent to child (both performed by add_child())
+                child.set_player(child_player)
 
     def leaf_evaluation(self, leaf_node):
         """The value of a leaf node is estimated by performing a rollout simulation, using the target
         policy (i.e. default policy) from the leaf node to a final state (i.e. winning state)"""
         state = leaf_node.get_state()
         player = leaf_node.get_player()
-        while not self.state_manager.is_winning_state(state)[0]:
+        while not self.state_manager.is_winning_state(state):
             chosen_action = self.actor.target_policy(state, player)
             state = self.state_manager.get_next_state(state, chosen_action)
             player = 1 if player == 2 else 2
@@ -92,7 +90,7 @@ class MonteCarloTreeSearch:
         else:
             action_index = np.argmin(normalized_counters)
         chosen_child = self.root.get_child_nodes()[action_index]
-        return chosen_child.get_action()
+        return chosen_child
 
     def get_root_distribution(self, root_node):
         """Method for normalizing the action counters from the root (i.e. edges to child nodes) to produce

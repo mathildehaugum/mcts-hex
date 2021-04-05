@@ -1,13 +1,14 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from celluloid import Camera
+from environment.hex_game import Hex
 
 
 # OBS OBS OBS : visualized board should be diamond, not rectangle! NEED TO FIX THIS!
 class Visualizer:
-    def __init__(self, board, game, visualization_speed, visualization_interval):
-        self.board = board
-        self.game = game
+    def __init__(self, board_size,  visualization_speed, visualization_interval):
+        self.game = Hex(board_size)
+        self.board = self.game.get_board()
         self.camera = Camera(plt.figure())
         self.G, self.pos = self.init_board_visualizer()
         self.speed = visualization_speed
@@ -49,7 +50,7 @@ class Visualizer:
         """ Visualizes the performed actions and resulting states in the given episode"""
         self.draw_board()
         for action in game_actions:
-            self.game.perform_action(action[0], action[1])
+            self.game.perform_action(action)
             self.draw_board()
         self.animate_visualiser()
 

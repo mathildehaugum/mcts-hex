@@ -4,7 +4,7 @@ class Cell:
         self.location = (row, column)
         self.name = "Cell" + str(row) + str(column)
         self.neighbor_list = []
-        self.cell_state = (0, 0)  # tells the state of the cell, where (0, 0) is empty, (1, 0) belong to player 1 and (0, 1) belong to player 2
+        self.cell_state = 0  # tells the state of the cell, where (0, 0) is empty, (1, 0) belong to player 1 and (0, 1) belong to player 2
 
     def __str__(self):
         """ Changes Cell object representation to string format to make debugging easier"""

@@ -50,13 +50,13 @@ class Hex:
         player 1 has left and right side, while player 2 has top and bottom"""
         for starting_location in range(self.size):
             p1_start_cell, p2_start_cell = self.board.get_cell([starting_location, 0]), self.board.get_cell([0, starting_location])
-            if p1_start_cell.get_cell_state() == (1, 0):
+            if p1_start_cell.get_cell_state() == 1:
                 if self.depth_first_search(p1_start_cell):
-                    return True, "p1"
-            if p2_start_cell.get_cell_state() == (0, 1):
+                    return True
+            if p2_start_cell.get_cell_state() == 2:
                 if self.depth_first_search(p2_start_cell):
-                    return True, "p2"
-        return False, ""
+                    return True
+        return False
 
     def depth_first_search(self, starting_cell):
         """Search after continuous path from given starting cell to a cell on the ending side
@@ -68,34 +68,13 @@ class Hex:
             current_cell = cell_stack.pop()
             cell_state = current_cell.get_cell_state()
             cell_row, cell_col = current_cell.get_location()
-            if (cell_state == (1, 0) and cell_col == self.size-1) or (cell_state == (0, 1) and cell_row == self.size-1):
+            if (cell_state == 1 and cell_col == self.size-1) or (cell_state == 2 and cell_row == self.size-1):
                 return True
             if current_cell not in visited:
                 visited.add(current_cell)
                 for neighbor in current_cell.get_neighbors():
                     if neighbor.get_cell_state() == starting_cell.get_cell_state():
                         cell_stack.append(neighbor)
-
-
-"""if __name__ == '__main__':
-    hex_game = Hex(3)
-    #print(hex_game.get_board().get_binary_state())
-    p1_action1 = [(1, 0), 1]
-    p1_action2 = [(1, 1), 1]
-    p1_action2 = [(1, 2), 1]
-    p2_action1 = [(0, 0), 2]
-    p2_action2 = [(0, 1), 2]
-    p2_action2 = [(2, 1), 2]
-
-    hex_game.perform_action((0, 2), 1)
-    hex_game.perform_action((0, 0), 2)
-    hex_game.perform_action((1, 1), 1)
-    hex_game.perform_action((1, 0), 2)
-    hex_game.perform_action((1, 2), 1)
-    hex_game.perform_action((2, 0), 2)
-    print(hex_game.get_legal_actions())
-    #print(hex_game.get_board().get_binary_state())
-    #print(hex_game.is_winning_state())"""
 
 
 
