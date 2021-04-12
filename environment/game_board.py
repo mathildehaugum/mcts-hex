@@ -8,6 +8,12 @@ class HexagonalDiamondGrid:
         self.board = [[None for i in range(self.boardSize)] for j in range(self.boardSize)]
         self.make_board()
 
+    def reset_board(self):
+        """ Reset board state by removing all holes """
+        cell_list = self.get_cells()
+        for current_cell in cell_list:
+            current_cell.set_cell_state(0)  # remove player ownership of cell
+
     def make_board(self, ):
         """ Fills board with Cell objects and creates neighborhood following Diamond structure requirements"""
         for r in range(self.boardSize):
@@ -40,7 +46,7 @@ class HexagonalDiamondGrid:
          belong to player 1 and one with cells that belong to player 2"""
         empty_pegs = []
         red_pegs = []
-        blue_pegs = []
+        black_pegs = []
         for cell_row in self.board:
             for current_cell in cell_row:
                 if current_cell is not None:
@@ -49,8 +55,8 @@ class HexagonalDiamondGrid:
                     elif current_cell.get_cell_state() == 1:
                         red_pegs.append(current_cell)
                     elif current_cell.get_cell_state() == 2:
-                        blue_pegs.append(current_cell)
-        return empty_pegs, red_pegs, blue_pegs
+                        black_pegs.append(current_cell)
+        return empty_pegs, red_pegs, black_pegs
 
     def get_empty_cells(self):
         empty_cells = []
@@ -63,8 +69,8 @@ class HexagonalDiamondGrid:
 
     def get_pegs_nums(self):
         """ Returns number of empty pegs, red pegs and blue pegs"""
-        empty_pegs, red_pegs, blue_pegs = self.get_pegs()
-        return len(empty_pegs), len(red_pegs), len(blue_pegs)
+        empty_pegs, red_pegs, black_pegs = self.get_pegs()
+        return len(empty_pegs), len(red_pegs), len(black_pegs)
 
     def get_binary_state(self):
         """ Returns space efficient and readable binary version of state where empty: 0, player 1: 1 and player 2: 2"""
