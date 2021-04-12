@@ -80,7 +80,7 @@ class StateManager:
             action_loc = child.get_action()[0]  # Chooses the child with action that produces the most (p1) or least (p2) desirable state
             if (row, col) == action_loc:
                 #print("Node: " + root.name + ", Distribution: " + str(normalized_counters) + ", " + print_value + ": " + str(action_index) + " chosen action: " + str(child.get_action()) + '\n')
-                return child
+g                return child
 
 
 def change_player(player):
