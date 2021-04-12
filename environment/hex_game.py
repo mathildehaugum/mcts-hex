@@ -32,7 +32,7 @@ class Hex:
          This method will receive such a list and changes the states of the currents board cells to
          the states given by the list"""
         board_cells = self.board.get_cells()
-        # LEGG TIL EXCEPTION MANAGEMENT (sjekk at cell_states har like mange celler som board_cells)
+        # TODO: LEGG TIL EXCEPTION MANAGEMENT (sjekk at cell_states har like mange celler som board_cells)
         for i in range(len(board_cells)):
             board_cells[i].set_cell_state(cell_states[i])
 
@@ -47,9 +47,9 @@ class Hex:
         sides to the other. This is checked by iterating over the starting locations for each player sides and
         if one of these locations belong to the player that owns this side, a depth first search is performed to see
         if this piece is the beginning of a path to the other side.
-        player 1 has left and right side, while player 2 has top and bottom"""
+        player 1 has bottom-left and top-right, while player 2 has bottom-right and top-left"""
         for starting_location in range(self.size):
-            p1_start_cell, p2_start_cell = self.board.get_cell([starting_location, 0]), self.board.get_cell([0, starting_location])
+            p1_start_cell, p2_start_cell = self.board.get_cell([0, starting_location]), self.board.get_cell([starting_location, 0])
             if p1_start_cell.get_cell_state() == 1:
                 if self.depth_first_search(p1_start_cell):
                     return True
@@ -63,21 +63,15 @@ class Hex:
         for the player that owns the given cell"""
         cell_stack = collections.deque()  # implement python stack
         cell_stack.append(starting_cell)
-        visited = set()  # set to keep track of visited cells
+        visited = set()  # set to keep track of visited cells, faster to determine if object is present
         while len(cell_stack) != 0:
             current_cell = cell_stack.pop()
             cell_state = current_cell.get_cell_state()
             cell_row, cell_col = current_cell.get_location()
-            if (cell_state == 1 and cell_col == self.size-1) or (cell_state == 2 and cell_row == self.size-1):
+            if (cell_row == self.size-1 and cell_state == 1) or (cell_col == self.size-1 and cell_state == 2):
                 return True
             if current_cell not in visited:
                 visited.add(current_cell)
                 for neighbor in current_cell.get_neighbors():
-                    if neighbor.get_cell_state() == starting_cell.get_cell_state():
+                    if neighbor.get_cell_state() == starting_cell.get_cell_state() and neighbor not in visited:
                         cell_stack.append(neighbor)
-
-
-
-
-
-
