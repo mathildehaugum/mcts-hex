@@ -24,12 +24,12 @@ class Cell:
         return self.neighbor_list
 
     def get_cell_state(self):
-        """ Returns state of cell, where (0, 0) = empty, (1, 0) = belong to player 1 and (0, 1) = belong to player 2"""
+        """ Returns state of cell, where 0 = empty, 1 = belong to player 1 and 2 = belong to player 2"""
         return self.cell_state
 
     def set_cell_state(self, new_state):
-        """ Change state of cell, where (0, 0) is empty, (1, 0) belong to player 1 and (0, 1) belong to player 2"""
-        #OBSOBS: add exemption to check length of new_state == 2
+        """ Change state of cell, where 0 is empty, 1 belong to player 1 and 2 belong to player 2"""
+        # TODO: add exemption to check length of new_state == 2
         self.cell_state = new_state
 
     def get_location(self):
