@@ -1,6 +1,7 @@
 import math
 from BasicClientActorAbs import BasicClientActorAbs
 from agent.actor import Actor
+from config import train_config
 
 
 class BasicClientActor(BasicClientActorAbs):
@@ -19,16 +20,10 @@ class BasicClientActor(BasicClientActorAbs):
         then you will see a 2 here throughout the entire series, whereas player 1 will see a 1.
         :return: Your actor's selected action as a tuple (row, column)
         """
-        next_move = tuple(self.pick_random_free_cell(
-            state, size=int(math.sqrt(len(state)-1))))
-        #############################
-        #
-        #
-        # YOUR CODE HERE
-        #
-        # next_move = ???
-        ##############################
-        return next_move
+        player = state[0]
+        board_state = state[1:]
+        next_move = self.actor.target_policy(board_state, player, is_top_policy=True)
+        return next_move[0]
 
     def handle_series_start(self, unique_id, series_id, player_map, num_games, game_params):
         """
@@ -39,10 +34,10 @@ class BasicClientActor(BasicClientActorAbs):
         :param num_games - number of games to be played in the series
         :param game_params - important game parameters.  For Hex = list with one item = board size (e.g. 5)
         :return
-
         """
         self.series_id = series_id
-        # TODO: LOAD ANET WITH BEST MODEL
+        print("Your ID: " + str(series_id))
+        self.actor.load("../models/ANET_6_ep_5.h5")
 
     def handle_game_start(self, start_player):
         """
@@ -96,15 +91,15 @@ class BasicClientActor(BasicClientActorAbs):
 if __name__ == '__main__':
 
     # Actor parameters
-    board_size = 4
-    learning_rate = 0.005
-    epsilon = 1
-    decay_rate = 0.97
-    nn_dims = [128, 128]
-    activation = ["relu", "relu", "relu"]
-    optimizer = "adam"
-    loss_function = "mean-squared-error"
+    board_size = train_config.board_size
+    learning_rate = train_config.learning_rate
+    epsilon = train_config.epsilon
+    decay_rate = train_config.decay_rate
+    nn_dims = train_config.nn_dims
+    activation = train_config.activation
+    optimizer = train_config.optimizer
+    loss_function = train_config.loss_function
     actor = Actor(learning_rate, epsilon, decay_rate, board_size, nn_dims, activation, optimizer, loss_function)
 
-    bsa = BasicClientActor(actor, verbose=True)
+    bsa = BasicClientActor(actor, verbose=False)
     bsa.connect_to_server()
