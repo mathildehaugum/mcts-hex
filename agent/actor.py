@@ -11,17 +11,17 @@ class Actor:
     """ Class for making an Actor that represents the NN that given a state will produce a probability
     distribution over all possible moves from that state. The network is trained in each episode
     to build an intelligent target policy that can be used in the tournament against other players"""
-    def __init__(self, learning_rate, epsilon, decay_rate, board_size, nn_dims, activation, optimizer, loss_function, filepath="", dir_num=0):
+    def __init__(self, learning_rate, epsilon, decay_rate, board_size, nn_dims, activation, optimizer, loss_function, filename=""):
         self.epsilon = epsilon
         self.decay_rate = decay_rate
         self.size = board_size
         self.anet = ANET(board_size, nn_dims, activation, optimizer, loss_function, learning_rate)
-        self.filepath = filepath  # Used in tournament
-        self.dir_num = dir_num
+        self.name = ""  # Used in tournament
+        self.filename = filename  # Used in tournament
 
     def set_name(self, name):
         """ Sets name of actor used during the tournament to differ between the agents playing against each other"""
-        self.name = name + "_" + self.filepath.split("ep_")[1].split(".h5")[0]
+        self.name = name + "_" + self.filename.split("ep_")[1].split(".h5")[0]
 
     def target_policy(self, state, player, is_top_policy=False):
         """ The target/default policy (on-policy) that is used to choose actions during rollout simulations in MCTS.
@@ -73,7 +73,11 @@ class Actor:
 
     def save(self, episode_num, dir_num):
         """Save current parameters (i.e. weights) of ANET for later use in tournament play"""
-        path = "./models/" + str(dir_num) + "_models/ANET_" + str(self.size) + "_ep_" + str(episode_num) + ".h5"  # h5 file format is recommended for storing NN parameters
+        if dir_num == 0:
+            save_directory = "./models"  # demo models are saved in models directory
+        else:
+            save_directory = "./models/" + str(dir_num) + "_models"  # training models are saved in models_x directory
+        path = save_directory + "/ANET_" + str(self.size) + "_ep_" + str(episode_num) + ".h5"  # h5 file format is recommended for storing NN parameters
         self.anet.model.save_weights(filepath=path)
 
     def load(self, path):
