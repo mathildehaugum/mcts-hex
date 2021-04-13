@@ -1,19 +1,19 @@
 # ----------------------------- BOARD PARAMETERS -----------------------------
 game_type = "HEX"
-board_size = 4
+board_size = 6
 starting_player = 1  # Random starting player for each episode: 0, else 1/2
 
 
 # ----------------------------- AGENT PARAMETERS -----------------------------
 save_interval = 5  # M: cache interval in preparation for a TOPP
-num_episodes = 200  # ensure this is divisible by save-interval - 1 (e.g. 200/4 = 50 => saved episodes are 0, 50, 100, 150, 200)
-num_simulations = 800
+num_episodes = 10  # ensure this is divisible by save-interval - 1 (e.g. 200/4 = 50 => saved episodes are 0, 50, 100, 150, 200)
+num_simulations = 50
 exploration_c = 1
 
 
 # ----------------------------- NN PARAMETERS -----------------------------
 epsilon = 1
-decay_rate = 0.95  # >= 0.95 to allow adequate exploration
+decay_rate = 0.70  # >= 0.95 to allow adequate exploration
 learning_rate = 0.0005
 nn_dims = [128, 128, 64]
 activation = ["tanh", "tanh", "tanh"]  # softmax is recommended in requirements p. 10
