@@ -1,13 +1,11 @@
-from agent.actor import Actor
 from agent.mcts import MonteCarloTreeSearch
-from agent.replay_buffer import ReplayBuffer
-from environment.state_manager import StateManager
-from agent.node import Node
 import random
 
 
 class GameAgent:
     def __init__(self, actor, save_interval, state_manager, visualizer, replay_buffer, starting_player, num_episodes, num_simulations, dir_num=0):
+        """ The game agent that performs the entire MCTS Algorithm on Hex games to train neural network models
+        that can be used in later more intelligent plays. It also makes visualizations showing the chosen path of actions"""
         self.actor = actor  # 3: ANET with randomly initialized parameters
         self.save_interval = num_episodes/(save_interval-1)  # -1 since the first episode (i.e. num 0) is stored
         self.state_manager = state_manager
@@ -19,6 +17,9 @@ class GameAgent:
         self.dir_num = dir_num
 
     def run(self):
+        """ Runs the entire algorithm connecting the state_manager, MCTS and actor to train the ANET that can be used in later plays"""
+
+        self.actor.load("./models/ANET_6_ep_300.h5")
 
         # 2: Clear replay buffer
         self.replay_buffer.clear_buffer()
@@ -42,7 +43,7 @@ class GameAgent:
             mcts = MonteCarloTreeSearch(self.actor, self.state_manager, state, player)
 
             # 4D: While episode is not in final state (i.e. no player hos won)
-            while not self.state_manager.is_winning_state(state):
+            while not self.state_manager.is_game_over(state):
                 for simulation in range(1, self.num_simulations + 1):
                     leaf_node = mcts.tree_search()
                     mcts.leaf_node_expansion(leaf_node)
@@ -54,7 +55,7 @@ class GameAgent:
                 self.replay_buffer.add_case(mcts.get_root(), D)
 
                 self.state_manager.reset_state(state)  # Avoid that any cell states are changed during leaf_node evaluation (i.e. that search actions actually are performed
-                chosen_child = self.state_manager.select_action(mcts.get_root(), player, D)
+                chosen_child = self.state_manager.select_action(mcts.get_root(), player, D)  # select action to be executed in actual game
                 actions.append(chosen_child.get_action())  # used in visualization
 
                 self.state_manager.perform_action(chosen_child.get_action())
@@ -73,7 +74,7 @@ class GameAgent:
             if current_episode == 1 or current_episode % self.save_interval == 0:
                 self.actor.save(current_episode, self.dir_num)
 
-            # Visualize last episode
+            # Visualize first episode and episodes within the interval defined in config
             if current_episode == 1 or current_episode % self.visualizer.get_interval() == 0:
                 self.visualizer.visualize(actions, current_episode)
             print("Episode : " + str(current_episode) + ", epsilon: " + str(self.actor.epsilon))
