@@ -37,7 +37,7 @@ class BasicClientActor(BasicClientActorAbs):
         """
         self.series_id = series_id
         print("Your ID: " + str(series_id))
-        self.actor.load("../models/ANET_6_ep_5.h5")
+        self.actor.load("../models/ANET_6_ep_225.h5")
 
     def handle_game_start(self, start_player):
         """
