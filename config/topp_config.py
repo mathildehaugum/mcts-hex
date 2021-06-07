@@ -1,6 +1,6 @@
 # ----------------------------- BOARD PARAMETERS -----------------------------
 game_type = "HEX"
-board_size = 4
+board_size = 6
 starting_player = 1  # Random starting player for each episode: 0, else 1/2
 
 
@@ -13,12 +13,12 @@ exploration_c = 1
 
 # ----------------------------- NN PARAMETERS -----------------------------
 epsilon = 1
-decay_rate = 0.99  # >= 0.95 to allow adequate exploration
-learning_rate = 0.005
-nn_dims = [128, 128, 64]
-activation = ["tanh", "tanh", "tanh"]  # softmax is recommended in requirements p. 10
+decay_rate = 0.973  # >= 0.95 to allow adequate exploration
+learning_rate = 0.001
+nn_dims = [64]
+activation = ["relu"]  # softmax is recommended in requirements p. 10
 optimizer = "adam"
-loss_function = "mean-squared-error"
+loss_function = "crossentropy"
 
 
 # ----------------------------- VISUALIZER PARAMETERS -----------------------------
@@ -26,6 +26,7 @@ verbose = False
 visualize = True
 visualization_speed = 1000
 visualization_interval = 250
+topp_is_visualized = True
 
 
 # ----------------------------- TOPP PARAMETERS -----------------------------
