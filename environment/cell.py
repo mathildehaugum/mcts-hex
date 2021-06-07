@@ -1,10 +1,10 @@
 class Cell:
-    """ Class for making a peg solitaire piece which is a Cell object"""
+    """ Class for making a Hex piece which is a Cell object"""
     def __init__(self, row, column):
         self.location = (row, column)
         self.name = "Cell" + str(row) + str(column)
         self.neighbor_list = []
-        self.cell_state = 0  # tells the state of the cell, where (0, 0) is empty, (1, 0) belong to player 1 and (0, 1) belong to player 2
+        self.cell_state = 0  # tells the state of the cell, where 0 is empty, 1 belong to player 1 and 2 belong to player 2
 
     def __str__(self):
         """ Changes Cell object representation to string format to make debugging easier"""
@@ -29,8 +29,10 @@ class Cell:
 
     def set_cell_state(self, new_state):
         """ Change state of cell, where 0 is empty, 1 belong to player 1 and 2 belong to player 2"""
-        # TODO: add exemption to check length of new_state == 2
-        self.cell_state = new_state
+        if new_state == 0 or new_state == 1 or new_state == 2:
+            self.cell_state = new_state
+        else:
+            raise Exception("Invalid state value. Cell state can only be set to 0, 1 or 2")
 
     def get_location(self):
         """ Returns location of cell as (row, col)"""
