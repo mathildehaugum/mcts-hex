@@ -3,13 +3,13 @@ import tensorflow as tf
 import numpy as np
 from tensorflow import keras as KER
 from tensorflow.keras.optimizers import Adadelta, Adagrad, Adam, SGD, RMSprop
-from tensorflow.keras.losses import MeanSquaredError, KLDivergence
+from tensorflow.keras.losses import MeanSquaredError, KLDivergence, CategoricalCrossentropy
 import random
 
 
 class Actor:
     """ Class for making an Actor that represents the NN that given a state will produce a probability
-    distribution over all possible moves from that state. The network is trained in each episode
+    distribution over all legal moves from that state. The network is trained in each episode
     to build an intelligent target policy that can be used in the tournament against other players"""
     def __init__(self, learning_rate, epsilon, decay_rate, board_size, nn_dims, activation, optimizer, loss_function, filename=""):
         self.epsilon = epsilon
@@ -24,7 +24,7 @@ class Actor:
         self.name = name + "_" + self.filename.split("ep_")[1].split(".h5")[0]
 
     def target_policy(self, state, player, is_top_policy=False):
-        """ The target/default policy (on-policy) that is used to choose actions during rollout simulations in MCTS.
+        """ The target/default policy (on-policy) that is used to choose actions during rollout simulations in MCTS or tournaments in Topp.
         The random element ensures exploration during rollout, while during tournament is_top_policy = True to only use the NN (i.e. exploitation)"""
         if not is_top_policy and self.epsilon >= random.uniform(0, 1):
             legal_indexes = []
@@ -57,10 +57,10 @@ class Actor:
 
     def train(self, minibatch):
         """ Trains the  neural network on a given random minibatch from replay buffer. This minibatch contains several
-         cases, where each case=(s,D) (i.e. a state and its distribution produced by MCTS)"""
+         cases, where each case=(s,D) (i.e. a state (OBS: with player indicator) and its target distribution produced by MCTS)"""
         for i in range(len(minibatch)):
-            x_train = convert_to_tensor(minibatch[i][0])
-            y_train = convert_to_tensor(minibatch[i][1])
+            x_train = convert_to_tensor(minibatch[i][0])  # The state with a player indicator (e.g. [1, 0, 0, 0, 0, 0, 0, 0, 0, 0] for player 1 in state [0, 0, 0, 0, 0, 0, 0, 0, 0])
+            y_train = convert_to_tensor(minibatch[i][1])  # The target distribution produced by MCTS
             self.anet.train(x_train, y_train)
 
     def decay_epsilon(self):
@@ -84,18 +84,12 @@ class Actor:
         """Load saved parameters of ANET for use in tournament play"""
         self.anet.model.load_weights(filepath=path)
 
-"""def predict(self, state):  # TODO: Can this method be removed? Tournament uses target_policy
-         Predicts the probability distribution of actions when given a state.
-         This is used during the tournament to decide which actions should be chosen
-        tensor_state = convert_to_tensor(state)
-        return self.anet.predict(tensor_state)"""
-
 
 class ANET:
     """ Class for making and training the neural network so it can be used to predict the action desirability
     for a given state. The choice of activation, optimizer and loss-function is customizable and is defined in configs"""
     def __init__(self, board_size, nn_dims, activation, optimizer, loss_function, learning_rate):
-        self.input_size = 1 + board_size ** 2  # An indicator of the player is added to target value, so the size is equal board_size^2 + 1
+        self.input_size = 1 + board_size ** 2  # An indicator of the player is added to input value, so the size is equal board_size^2 + 1
         self.output_size = board_size ** 2
         self.hidden_layers_dim = nn_dims
         self.alpha = learning_rate
@@ -121,21 +115,8 @@ class ANET:
 
     def train(self, x_train, y_train):  # backward-pass in neural network
         """ Backward pass in neural model to train the network when given a case from the Replay buffer. x_train is the
-        state, while y_train is the target value (i.e. distribution produced by using node counters found in MCTS)"""
-        self.model.fit(x_train, y_train, epochs=10, batch_size=64, verbose=False, callbacks=[])
-
-
-    """@staticmethod  # Not needed, since activation is only a string
-    def get_activation_function(activation):
-        if activation == "linear":
-            return "linear"
-        elif activation == "sigmoid":
-            return "sigmoid"
-        elif activation == "tanh":
-            return "tanh"
-        elif activation == "relu":
-            return "relu"
-            """
+        state with a player indicator, while y_train is the target value (i.e. distribution produced by using node counters found in MCTS)"""
+        self.model.fit(x_train, y_train, epochs=1, batch_size=32, verbose=False, callbacks=[])
 
     def get_optimizer(self, optimizer):
         """ Allows for customizable optimizer defined in config"""
@@ -157,6 +138,8 @@ class ANET:
             return MeanSquaredError()
         elif loss == "KLDivergence":
             return KLDivergence()
+        elif loss == "crossentropy":
+            return CategoricalCrossentropy()
 
 
 def convert_to_tensor(state):
