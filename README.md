@@ -8,4 +8,4 @@ An on-policy MCTS is used to provide target probability distributions for traini
 
 The figure below shows an example of a solution produced by the MCTS and RL system. 
 
-![image](images/animation.gif)
+![image](images/animation_75_300.gif)
