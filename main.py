@@ -9,7 +9,7 @@ from tournament import Topp
 
 if __name__ == '__main__':
 
-    run = "topp"  # "train" (build good agents), "demo" (4: run short training session), "topp" (5: tournament demo), "oht" (training of oht agent)
+    run = "train"  # "train" (build good agents), "demo" (4: run short training session), "topp" (5: tournament demo), "oht" (training of oht agent)
 
     if run == "train":
         for i in range(1, 5):
@@ -21,6 +21,7 @@ if __name__ == '__main__':
             game_agent.run()
 
     if run == "demo":
+        print("Begin training:")
         state_manager = StateManager(demo_config.game_type, demo_config.board_size, nim_k=1)
         actor = Actor(demo_config.learning_rate, demo_config.epsilon, demo_config.decay_rate, demo_config.board_size, demo_config.nn_dims, demo_config.activation, demo_config.optimizer, demo_config.loss_function)
         visualizer = Visualizer(demo_config.board_size, demo_config.visualization_speed, demo_config.visualization_interval)
@@ -28,11 +29,12 @@ if __name__ == '__main__':
         game_agent = GameAgent(actor, demo_config.save_interval, state_manager, visualizer, replay_buffer, demo_config.starting_player, demo_config.num_episodes, demo_config.num_simulations, 0)  # i = 0 to save in demo models in models
         game_agent.run()
 
-        topp = Topp("demo")
+        print("\n Begin tournament:")
+        topp = Topp("demo", topp_visualization=demo_config.topp_is_visualized)
         topp.start_tournament()
 
     if run == "topp":
-        topp = Topp("topp")
+        topp = Topp("topp", topp_visualization=topp_config.topp_is_visualized)
         topp.start_tournament()
 
 
