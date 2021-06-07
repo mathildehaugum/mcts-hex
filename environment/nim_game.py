@@ -10,7 +10,6 @@ class Nim:
         self.size = board_size
         self.num_pieces = self.size * self.size
         self.max_piece_adding = nim_k
-
         self.board = HexagonalDiamondGrid(self.size)
 
     def get_board(self):
