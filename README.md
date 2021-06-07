@@ -1,4 +1,4 @@
-# Deep Reinforcement Learning and MCTS for solving HEX 🤖
+# Reinforcement Learning and MCTS for solving Hex 🤖
 
 This is a machine learning project that implements a Monte Carlo Tree Search (MCTS) system and combines it with Reinforcement Learning (RL) and Deep Learning (DL) to play the board game known as Hex. For a complete description of the game, see [Wikipedia](https://no.wikipedia.org/wiki/Hex). This game has simple rules but many possible game states which necessitates the use of function approximators. such as neural nets. for the value function and policy.
 
