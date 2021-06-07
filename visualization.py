@@ -6,6 +6,7 @@ from environment.hex_game import Hex
 
 class Visualizer:
     def __init__(self, board_size,  visualization_speed, visualization_interval):
+        """ Class for visualizing a diamond hexagonal grid and the actions that are performed in the game"""
         self.game = Hex(board_size)
         self.board = self.game.get_board()
         self.camera = Camera(plt.figure())
@@ -14,9 +15,12 @@ class Visualizer:
         self.interval = visualization_interval
 
     def get_interval(self):
+        """ Returns the interval describing how often a game visualization should be made"""
         return self.interval
 
     def init_board_visualizer(self):
+        """ Initializes the board visualization, where array logic is used to create a diamond structure with the
+        correct rotation and direction"""
         G = nx.Graph()
         row = 0
         col = self.game.size - 1  # Since location placements start with 0, the size have to be adjusted
@@ -49,6 +53,7 @@ class Visualizer:
         self.camera.snap()
 
     def animate_visualiser(self, current_episode):
+        """ Creates and saves a gif of the created images"""
         animation = self.camera.animate(interval=self.speed, repeat=False)
         animation.save('images/animation_' + str(current_episode) + '.gif')
         plt.show(block=False)
