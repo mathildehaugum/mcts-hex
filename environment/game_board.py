@@ -2,14 +2,14 @@ from environment.cell import Cell
 
 
 class HexagonalDiamondGrid:
-    """ Class for making a peg solitaire board which is a Hexagonal grid """
+    """ Class for making a Hex board which is a diamond Hexagonal grid """
     def __init__(self, size):
         self.boardSize = size
         self.board = [[None for i in range(self.boardSize)] for j in range(self.boardSize)]
         self.make_board()
 
     def reset_board(self):
-        """ Reset board state by removing all holes """
+        """ Reset board state by removing all ownerships to the board cells"""
         cell_list = self.get_cells()
         for current_cell in cell_list:
             current_cell.set_cell_state(0)  # remove player ownership of cell
@@ -28,9 +28,11 @@ class HexagonalDiamondGrid:
                     new_cell.add_neighbor(self.board[r-1][c+1])
 
     def get_cell(self, location):
-        """ Returns Cell object at given location if it exists """
+        """ Returns Cell object at given location if it exists"""
         if 0 <= location[0] < self.boardSize and 0 <= location[1] < self.boardSize:
             return self.board[location[0]][location[1]]
+        else:
+            raise Exception("There is no cell at the given location")
 
     def get_cells(self):
         """ Returns all cells that are not None """
@@ -59,6 +61,7 @@ class HexagonalDiamondGrid:
         return empty_pegs, red_pegs, black_pegs
 
     def get_empty_cells(self):
+        """Returns the game cells that are not owned by any player (i.e. has cell_state = 0)"""
         empty_cells = []
         for cell_row in self.board:
             for current_cell in cell_row:
@@ -66,11 +69,6 @@ class HexagonalDiamondGrid:
                     if current_cell.get_cell_state() == 0:
                         empty_cells.append(current_cell)
         return empty_cells
-
-    def get_pegs_nums(self):
-        """ Returns number of empty pegs, red pegs and blue pegs"""
-        empty_pegs, red_pegs, black_pegs = self.get_pegs()
-        return len(empty_pegs), len(red_pegs), len(black_pegs)
 
     def get_binary_state(self):
         """ Returns space efficient and readable binary version of state where empty: 0, player 1: 1 and player 2: 2"""
@@ -85,8 +83,8 @@ class HexagonalDiamondGrid:
         return binary_board_state
 
     def perform_action(self, cell_location, player):
-        """Given an action = [cell_location, player], performs action by changing state of given cell if it is not
-        already owned by another player. Player moves that effect several cells are implemented by looping this method"""
+        """Performs the given action = [cell_location, player] by changing state of given cell if it is not
+        already owned by another player."""
         cell = self.get_cell(cell_location)
         if cell is not None:
             if cell.get_cell_state() == 0 and player == 1:
@@ -96,6 +94,6 @@ class HexagonalDiamondGrid:
             else:
                 raise Exception("Move is not available because the cell is occupied")
         else:
-            raise Exception("Given cell_location is invalid")
+            raise Exception("Given cell location is invalid")
 
 
