@@ -7,6 +7,9 @@ from math import floor, sqrt
 
 class StateManager:
     def __init__(self, game_type, board_size, nim_k=1):
+        """ Class for making an interface between the Hex game logic and the MCTS/actor. The state manager will produce
+        initial game states, generate child states from a parent state, recognize winning states, find legal actions
+        for a given state and select most desirable actions for a given distribution."""
         self.size = board_size
         self.game_type = game_type
         self.game = None
@@ -14,20 +17,20 @@ class StateManager:
         self.nim_k = nim_k  # only used by Nim game, not by Hex
 
     def init_game(self):
-        """Initialize a new game of the given game type"""
+        """ Initializes a new game of the given game type"""
         if self.game_type == "HEX":
             self.game = Hex(self.size)
         elif self.game_type == "NIM":
             self.game = Nim(self.size, self.nim_k)
 
     def get_state(self):
-        """Returns the state of the cells on the current game board"""
+        """ Returns the state of the cells on the current game board"""
         return self.game.get_current_state()
 
     def get_child_nodes(self, state, player):
-        """Generates child nodes when given the current state. The state of these nodes are decided by looking at
-        the available legal actions (i.e. cells not owned by players) and these states are then given to the MCTS Node
-        class to create node instances that can be used by the MCTS algorithm"""
+        """ Generates child nodes of the given state. Each created child node contains a child state produced by
+        performing one of the legal actions from the given state (i.e. fill cell with state = 0) and the legal
+        action that created this child state"""
         child_nodes = []
         legal_actions = self.get_legal_actions(state, player)
         for action in legal_actions:
@@ -36,18 +39,18 @@ class StateManager:
         return child_nodes
 
     def get_legal_actions(self, state, player):
-        """Returns the available actions for the given player when the cells are in the given state.
-        The player is needed to return action = [cell_location, player]that can be used by MCTS."""
+        """ Returns the available actions for the given player when the board is in the given state.
+        The player is needed to return action = [cell_location, player] that can be used to create child nodes"""
         legal_actions = []
-        legal_cells = self.game.get_legal_cells(state)
+        legal_cells = self.game.get_legal_cells(state)  # cells with cell_state = 0
         for cell in legal_cells:
             action = [cell.get_location(), player]  # Action = [cell_location, player]
             legal_actions.append(action)
         return legal_actions
 
-    def is_winning_state(self, state):
+    def is_game_over(self, state):
         """Check if given state is a winning state by setting cells to the given state and running
-        regular is_winning check."""
+        the winning state check of the game (e.g. dfs search in Hex)"""
         self.game.set_cell_states(state)
         return self.game.is_winning_state()
 
@@ -56,32 +59,31 @@ class StateManager:
         self.game.set_cell_states(state)
 
     def get_next_state(self, state, action):
+        """ Returns the state that is produced by performing the given action in the given state"""
         return self.game.get_next_state(state, action)
 
     def perform_action(self, action):
         """When given an action = [cell_location, player], this method will perform the action by
-         using the method implemented by the game type (e.g. hex_game)."""
+         using the method implemented by the game type (e.g. hex_game)"""
         self.game.perform_action(action)
 
     def select_action(self, root, player, normalized_counters):
-        """Method for actually selecting the action that should be performed in the game. This
-        will be the action with the highest counter for p1 and lowest counter for p2 """
+        """Method for selecting the action that should be performed in the actual game. This will be the action with
+        the highest normalized counter for p1 and lowest normalized counter for p2. The distribution includes 0 for
+        illegal actions, so some array logic is used to locate the corresponding board action given the chosen index"""
         state_len = self.size ** 2
-        print_value = ""
         if player == 1:
             action_index = np.where(normalized_counters == np.max(normalized_counters[np.nonzero(normalized_counters)]))[0][0]  # Returns index of action with highest counter excluding 0
-            print_value = "max"
         else:
             action_index = np.where(normalized_counters == np.min(normalized_counters[np.nonzero(normalized_counters)]))[0][0]  # Returns index of action with lowest counter excluding 0
-            print_value = "min"
         row = floor(action_index/sqrt(state_len))
         col = int(action_index % sqrt(state_len))
-        for child in root.get_child_nodes():
-            action_loc = child.get_action()[0]  # Chooses the child with action that produces the most (p1) or least (p2) desirable state
+        for child in root.get_child_nodes():  # Finds the child node that contains the action = [(row, col), player] corresponding to the chosen (row, col) found above
+            action_loc = child.get_action()[0]
             if (row, col) == action_loc:
-                #print("Node: " + root.name + ", Distribution: " + str(normalized_counters) + ", " + print_value + ": " + str(action_index) + " chosen action: " + str(child.get_action()) + '\n')
                 return child
 
 
 def change_player(player):
+    """ Switch the player"""
     return 1 if player == 2 else 2
